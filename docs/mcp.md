@@ -43,7 +43,19 @@ Do not put a Vault password in a shared configuration repository, screen recordi
 | `fittwin_recommend_outfit` | a deterministic selection from the exported wardrobe | product links, web results, purchase actions |
 | `fittwin_assess_garment_fit` | recommendation, confidence, and per-area garment differences | raw profile values or a fit guarantee |
 
-All tools are read-only in this alpha. FitTwin does not currently let an AI client update feedback, modify the profile, export data, invoke an external model, access photos, or run a virtual try-on.
+By default, all tools are read-only in this alpha. FitTwin does not let an AI client modify the profile, export data, invoke an external model, access photos, or run a virtual try-on.
+
+## Optional feedback writes
+
+By default, the feedback-write tool is absent. If you deliberately want a trusted AI client to record a simple `like` or `dislike` reaction to a named style trait, add this environment variable to that client's local MCP configuration:
+
+```json
+"FITTWIN_ALLOW_WRITES": "true"
+```
+
+This enables only `fittwin_record_style_feedback`. It appends a validated feedback item to the encrypted Vault using an atomic local replacement; it does not change the browser database, contact a service, or grant the client general profile-editing access. To bring the feedback back into the personal app, choose **Import backup** and select that encrypted Agent Vault with its password. The import is a user-initiated replacement of the local profile, wardrobe, and saved size tables.
+
+Leave this setting absent for the normal read-only mode. Review every write request in your AI client before approving it.
 
 ## Consent boundary
 

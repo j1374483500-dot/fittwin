@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { createDecipheriv, pbkdf2Sync } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { createCipheriv, createDecipheriv, pbkdf2Sync, randomBytes } from "node:crypto";
+import { readFile, rename, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -19,23 +19,37 @@ export function profileSummary(vault: AgentVault) {
   };
 }
 
-export function createFitTwinMcp(vault: AgentVault) {
+export interface McpOptions { allowWrites?: boolean; saveVault?: (vault: AgentVault) => Promise<void>; }
+
+export function createFitTwinMcp(vault: AgentVault, options: McpOptions = {}) {
+  let activeVault = vault;
   const server = new McpServer({ name: "fittwin", version: "0.1.0-alpha.1" });
   server.registerTool("fittwin_get_profile_summary", {
     title: "FitTwin profile summary",
     description: "Return the user's consented style preferences and proportional summary. Never returns profile identifiers or raw measurements.",
     inputSchema: {}
-  }, async () => result(profileSummary(vault)));
+  }, async () => result(profileSummary(activeVault)));
   server.registerTool("fittwin_recommend_outfit", {
     title: "FitTwin daily outfit",
     description: "Recommend a deterministic outfit only from the user's exported wardrobe. This tool does not browse or buy items.",
     inputSchema: { occasion: z.enum(["daily", "work", "date", "travel", "event"]).optional(), temperatureC: z.number().min(-30).max(50).optional() }
-  }, async ({ occasion, temperatureC }) => result(recommendOutfit(vault.profile, vault.wardrobe, { occasion: occasion ?? vault.profile.preferences.occasions[0], temperatureC: temperatureC ?? 20 })));
+  }, async ({ occasion, temperatureC }) => result(recommendOutfit(activeVault.profile, activeVault.wardrobe, { occasion: occasion ?? activeVault.profile.preferences.occasions[0], temperatureC: temperatureC ?? 20 })));
   server.registerTool("fittwin_assess_garment_fit", {
     title: "FitTwin garment fit assessment",
     description: "Compare a caller-supplied top or bottom size chart to the user's local profile. Returns a recommendation, confidence, and local measurement differences; it never guarantees fit.",
     inputSchema: { garment: garmentSpecSchema }
-  }, async ({ garment }) => result(assessGarmentFit(vault.profile, garment)));
+  }, async ({ garment }) => result(assessGarmentFit(activeVault.profile, garment)));
+  const saveVault = options.saveVault;
+  if (options.allowWrites && saveVault) server.registerTool("fittwin_record_style_feedback", {
+    title: "FitTwin record style feedback",
+    description: "Write one like/dislike style feedback item to the encrypted local Vault. This tool is available only when the user explicitly enables FITTWIN_ALLOW_WRITES=true. The user must import the Vault into the PWA to bring this feedback back to browser storage.",
+    inputSchema: { trait: z.string().trim().min(1).max(48), sentiment: z.enum(["like", "dislike"]) }
+  }, async ({ trait, sentiment }) => {
+    const updated = agentVaultSchema.parse({ ...activeVault, profile: { ...activeVault.profile, updatedAt: new Date().toISOString(), feedback: [...activeVault.profile.feedback, { trait, sentiment, createdAt: new Date().toISOString() }] } });
+    await saveVault(updated);
+    activeVault = updated;
+    return result({ recorded: true, trait, sentiment, disclosure: "Saved only to the encrypted local Agent Vault. Import that Vault in the FitTwin PWA to apply it to browser storage." });
+  });
   return server;
 }
 
@@ -55,13 +69,22 @@ export async function loadAgentVault(path: string, password: string): Promise<Ag
   }
 }
 
+export async function saveAgentVault(path: string, password: string, vault: AgentVault) {
+  const salt = randomBytes(16); const iv = randomBytes(12); const key = pbkdf2Sync(password, salt, 210000, 32, "sha256");
+  const cipher = createCipheriv("aes-256-gcm", key, iv); const ciphertext = Buffer.concat([cipher.update(JSON.stringify(agentVaultSchema.parse(vault)), "utf8"), cipher.final(), cipher.getAuthTag()]);
+  const temporaryPath = `${path}.${randomBytes(8).toString("hex")}.tmp`;
+  await writeFile(temporaryPath, JSON.stringify({ version: 1, salt: salt.toString("base64"), iv: iv.toString("base64"), ciphertext: ciphertext.toString("base64") }), { mode: 0o600 });
+  await rename(temporaryPath, path);
+}
+
 function result(value: unknown) { return { content: [{ type: "text" as const, text: JSON.stringify(value) }], structuredContent: value as Record<string, unknown> }; }
 
 async function main() {
   const path = process.env.FITTWIN_VAULT_PATH;
   const password = process.env.FITTWIN_VAULT_PASSWORD;
   if (!path || !password) throw new Error("Set FITTWIN_VAULT_PATH and FITTWIN_VAULT_PASSWORD before starting FitTwin MCP.");
-  const server = createFitTwinMcp(await loadAgentVault(path, password));
+  const allowWrites = process.env.FITTWIN_ALLOW_WRITES === "true";
+  const server = createFitTwinMcp(await loadAgentVault(path, password), allowWrites ? { allowWrites, saveVault: (vault) => saveAgentVault(path, password, vault) } : {});
   await server.connect(new StdioServerTransport());
 }
 

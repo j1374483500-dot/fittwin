@@ -28,6 +28,7 @@ describe("FitTwin MCP", () => {
     await client.connect(transport);
     const tools = await client.listTools();
     expect(tools.tools.map((tool) => tool.name)).toEqual(expect.arrayContaining(["fittwin_get_profile_summary", "fittwin_recommend_outfit", "fittwin_assess_garment_fit"]));
+    expect(tools.tools.map((tool) => tool.name)).not.toContain("fittwin_record_style_feedback");
     const summary = await client.callTool({ name: "fittwin_get_profile_summary", arguments: {} });
     expect(JSON.stringify(summary)).not.toContain("private-profile-id");
     const outfit = await client.callTool({ name: "fittwin_recommend_outfit", arguments: { temperatureC: 20 } });
@@ -35,6 +36,14 @@ describe("FitTwin MCP", () => {
     const fit = await client.callTool({ name: "fittwin_assess_garment_fit", arguments: { garment: { id: "tee", name: "Tee", category: "top", fitIntent: "regular", sizes: [{ label: "M", measurements: { shoulder: 44, chest: 106 } }] } } });
     expect(JSON.stringify(fit)).toContain("recommendedSize");
     await client.close();
+
+    const writableClient = new Client({ name: "fittwin-write-test-client", version: "1.0" });
+    const writableTransport = new StdioClientTransport({ command: process.execPath, args: [resolve(process.cwd(), "dist/server.js")], cwd: process.cwd(), env: { PATH: process.env.PATH ?? "", FITTWIN_VAULT_PATH: vaultPath, FITTWIN_VAULT_PASSWORD: password, FITTWIN_ALLOW_WRITES: "true" }, stderr: "pipe" });
+    await writableClient.connect(writableTransport);
+    const record = await writableClient.callTool({ name: "fittwin_record_style_feedback", arguments: { trait: "short jacket", sentiment: "like" } });
+    expect(JSON.stringify(record)).toContain("recorded");
+    await writableClient.close();
+    await expect(loadAgentVault(vaultPath, password)).resolves.toMatchObject({ profile: { feedback: expect.arrayContaining([expect.objectContaining({ trait: "short jacket", sentiment: "like" })]) } });
   });
 });
 
