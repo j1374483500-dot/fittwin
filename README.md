@@ -11,6 +11,7 @@ FitTwin is an open-source, local-first body profile and style-guide toolkit. Ind
 - A consent-gated AI guide via the user's own loopback-only companion and OpenAI-compatible provider.
 - Transparent garment sizing for standard top and bottom size charts.
 - A personal, browser-local size-check form: enter a brand's measurements, save the chart on your device, and see the recommended size with per-area differences.
+- A read-only local MCP server, so compatible AI clients can call FitTwin capabilities without turning the profile into a cloud API.
 - TypeScript SDK, React silhouette component, personal PWA, and a local AI companion.
 
 ## Quick start
@@ -29,6 +30,12 @@ The public demo is deployed to GitHub Pages after every successful `main` build.
 ### Check a garment size table
 
 In the personal app, open **Personal size check**, enter the garment name and its top or bottom size-table values, then choose **Save and check fit**. FitTwin saves that table only in this browser and explains the closest size with shoulder/chest or waist/hip/inseam differences. It does not scrape product pages and it does not guarantee a garment will fit; use it as a transparent starting point alongside the brand's own guidance.
+
+### Connect an AI client locally
+
+FitTwin is agent-native: the web app is a private profile editor, while `@fittwin/mcp` is a local capability provider for compatible AI clients. Export an encrypted **AI vault** from the PWA, then configure your client to launch `fittwin-mcp` over stdio. It exposes three read-only tools: a minimized profile summary, outfit recommendation from the exported wardrobe, and garment-fit assessment. The server has no network endpoint and does not call a model provider.
+
+See [the MCP setup guide](docs/mcp.md) before connecting a client. A connected client can see the result of any tool it invokes; only connect a client you trust.
 
 ### Enable AI guidance locally
 

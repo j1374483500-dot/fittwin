@@ -5,9 +5,9 @@
   "packageManager": "pnpm@11.9.0",
   "engines": { "node": ">=22" },
   "scripts": {
-    "build": "pnpm --filter @fittwin/core build && pnpm --filter @fittwin/sdk build && pnpm --filter @fittwin/react build && pnpm --filter @fittwin/local-companion build && pnpm --filter @fittwin/personal-web build",
-    "test": "pnpm --filter @fittwin/core test && pnpm --filter @fittwin/sdk test && pnpm --filter @fittwin/react test && pnpm --filter @fittwin/local-companion test && pnpm --filter @fittwin/personal-web test",
-    "typecheck": "pnpm --filter @fittwin/core build && pnpm --filter @fittwin/sdk build && pnpm --filter @fittwin/react build && pnpm --filter @fittwin/core typecheck && pnpm --filter @fittwin/sdk typecheck && pnpm --filter @fittwin/react typecheck && pnpm --filter @fittwin/local-companion typecheck && pnpm --filter @fittwin/personal-web typecheck",
+    "build": "pnpm --filter @fittwin/core build && pnpm --filter @fittwin/sdk build && pnpm --filter @fittwin/react build && pnpm --filter @fittwin/local-companion build && pnpm --filter @fittwin/mcp build && pnpm --filter @fittwin/personal-web build",
+    "test": "pnpm --filter @fittwin/core test && pnpm --filter @fittwin/sdk test && pnpm --filter @fittwin/react test && pnpm --filter @fittwin/local-companion test && pnpm --filter @fittwin/mcp test && pnpm --filter @fittwin/personal-web test",
+    "typecheck": "pnpm --filter @fittwin/core build && pnpm --filter @fittwin/sdk build && pnpm --filter @fittwin/react build && pnpm --filter @fittwin/core typecheck && pnpm --filter @fittwin/sdk typecheck && pnpm --filter @fittwin/react typecheck && pnpm --filter @fittwin/local-companion typecheck && pnpm --filter @fittwin/mcp typecheck && pnpm --filter @fittwin/personal-web typecheck",
     "dev:web": "pnpm --filter @fittwin/personal-web dev",
     "dev:companion": "pnpm --filter @fittwin/local-companion dev"
   },

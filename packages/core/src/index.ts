@@ -95,6 +95,16 @@ export const wardrobeItemSchema = z.object({
   createdAt: z.string().datetime()
 });
 export type WardrobeItem = z.infer<typeof wardrobeItemSchema>;
+export const AGENT_VAULT_SCHEMA_VERSION = "1.0" as const;
+/** A user-exported, local-only bundle used by the read-only FitTwin MCP server. */
+export const agentVaultSchema = z.object({
+  schemaVersion: z.literal(AGENT_VAULT_SCHEMA_VERSION),
+  exportedAt: z.string().datetime(),
+  profile: twinProfileSchema,
+  wardrobe: z.array(wardrobeItemSchema).default([]),
+  garments: z.array(garmentSpecSchema).default([])
+});
+export type AgentVault = z.infer<typeof agentVaultSchema>;
 export const outfitContextSchema = z.object({
   occasion: z.enum(occasions).default("daily"),
   temperatureC: z.number().min(-30).max(50).default(20)
