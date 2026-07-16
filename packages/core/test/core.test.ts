@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessGarmentFit, createProfile, renderTwin, toCm, validateProfileInput, type BodyMeasurements, type GarmentSpec } from "../src/index.js";
+import { assessGarmentFit, createProfile, recommendOutfit, renderTwin, toCm, validateProfileInput, type BodyMeasurements, type GarmentSpec, type WardrobeItem } from "../src/index.js";
 
 const measurements: BodyMeasurements = {
   height: { value: 175, unit: "cm" }, shoulder: { value: 44, unit: "cm" }, chest: { value: 96, unit: "cm" }, waist: { value: 78, unit: "cm" }, hip: { value: 98, unit: "cm" }, inseam: { value: 80, unit: "cm" }
@@ -25,5 +25,15 @@ describe("FitTwin core", () => {
     const tight: GarmentSpec = { id: "tight", name: "Tight trouser", category: "bottom", fitIntent: "regular", sizes: [{ label: "M", measurements: { waist: 70, hip: 90, inseam: 78 } }] };
     expect(assessGarmentFit(profile, acceptable).status).toBe("acceptable");
     expect(assessGarmentFit(profile, tight).status).toBe("not_recommended");
+  });
+  it("builds a weather-aware outfit from saved wardrobe items", () => {
+    const wardrobe: WardrobeItem[] = [
+      { id: "shirt", name: "White shirt", category: "top", color: "white", formality: 4, warmth: 2, styleTags: ["classic"], createdAt: new Date().toISOString() },
+      { id: "trouser", name: "Black trouser", category: "bottom", color: "black", formality: 4, warmth: 3, styleTags: ["classic"], createdAt: new Date().toISOString() },
+      { id: "coat", name: "Navy coat", category: "outerwear", color: "navy", formality: 4, warmth: 5, styleTags: ["classic"], createdAt: new Date().toISOString() }
+    ];
+    const recommendation = recommendOutfit(profile, wardrobe, { occasion: "work", temperatureC: 8 });
+    expect(recommendation.status).toBe("ready");
+    expect(recommendation.items.map((item) => item.id)).toContain("coat");
   });
 });

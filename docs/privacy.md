@@ -5,6 +5,7 @@ FitTwin is local-first by design:
 - The core SDK uses in-memory storage by default and never performs network requests.
 - The personal PWA uses IndexedDB only for the profile and local recommendation feedback. It has no account, analytics, telemetry, or API-key persistence.
 - Export produces a user-controlled JSON file. Delete removes the PWA profile from IndexedDB.
+- An optional encrypted backup uses a locally derived AES-GCM key. The password is not stored, transmitted, or recoverable by FitTwin.
 - AI generation is disabled until the user selects consent, starts their own local companion, and supplies its one-time pairing token.
 - The companion reads the provider credential only from its current process environment. It binds to `127.0.0.1` and rejects other origins unless explicitly configured.
 

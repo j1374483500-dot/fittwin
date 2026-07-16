@@ -23,6 +23,8 @@ pnpm dev:web
 
 Open the displayed local URL. Profiles and feedback are retained only in that browser's IndexedDB. Use **Export profile** before changing browsers or devices.
 
+The public demo is deployed to GitHub Pages after every successful `main` build. It works without any model key: create a profile, generate an offline base guide, and build a local wardrobe first. The companion is only required for a provider-generated guide.
+
 ### Enable AI guidance locally
 
 FitTwin never puts a model key in the PWA. Run the companion on the same device instead:

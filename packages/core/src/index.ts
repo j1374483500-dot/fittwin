@@ -10,6 +10,8 @@ export type Unit = "cm" | "in";
 export type MeasurementKey = "height" | "shoulder" | "chest" | "waist" | "hip" | "inseam" | "torso" | "arm" | "thigh";
 export type FitPreference = (typeof fitPreferences)[number];
 export type GarmentCategory = "top" | "bottom";
+export const wardrobeCategories = ["top", "bottom", "outerwear", "dress", "shoes", "accessory"] as const;
+export type WardrobeCategory = (typeof wardrobeCategories)[number];
 
 export const measurementInputSchema = z.object({
   value: z.number().positive("Measurement must be greater than zero"),
@@ -81,6 +83,29 @@ export const garmentSpecSchema = z.object({
 });
 
 export type GarmentSpec = z.infer<typeof garmentSpecSchema>;
+
+export const wardrobeItemSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(80),
+  category: z.enum(wardrobeCategories),
+  color: z.string().min(1).max(40),
+  formality: z.number().int().min(1).max(5).default(3),
+  warmth: z.number().int().min(1).max(5).default(3),
+  styleTags: z.array(z.enum(styleGoals)).max(3).default([]),
+  createdAt: z.string().datetime()
+});
+export type WardrobeItem = z.infer<typeof wardrobeItemSchema>;
+export const outfitContextSchema = z.object({
+  occasion: z.enum(occasions).default("daily"),
+  temperatureC: z.number().min(-30).max(50).default(20)
+});
+export type OutfitContext = z.infer<typeof outfitContextSchema>;
+export interface OutfitRecommendation {
+  status: "ready" | "needs_more_items";
+  items: WardrobeItem[];
+  reason: string;
+  missing: WardrobeCategory[];
+}
 
 export interface NormalizedMeasurements { [key: string]: number | undefined; }
 export interface RatioInsights {
@@ -154,6 +179,24 @@ export function renderTwin(measurements: BodyMeasurements): TwinViewModel {
   };
 }
 
+/** A transparent, offline daily outfit suggestion from the user's own wardrobe. */
+export function recommendOutfit(profile: Pick<TwinProfile, "preferences">, items: WardrobeItem[], context: OutfitContext): OutfitRecommendation {
+  const validItems = items.map((item) => wardrobeItemSchema.parse(item));
+  const pick = (category: WardrobeCategory) => validItems.filter((item) => item.category === category).sort((a, b) => scoreWardrobeItem(b, profile.preferences, context) - scoreWardrobeItem(a, profile.preferences, context))[0];
+  const top = pick("top");
+  const bottom = pick("bottom");
+  const dress = pick("dress");
+  const shoes = pick("shoes");
+  const outerwear = context.temperatureC < 18 ? pick("outerwear") : undefined;
+  const base = dress ? [dress] : [top, bottom].filter((item): item is WardrobeItem => Boolean(item));
+  const selected = [...base, ...(outerwear ? [outerwear] : []), ...(shoes ? [shoes] : [])];
+  const missing: WardrobeCategory[] = dress ? [] : (["top", "bottom"] as WardrobeCategory[]).filter((category) => !selected.some((item) => item.category === category));
+  if (selected.length === 0 || missing.length > 0) return { status: "needs_more_items", items: selected, missing, reason: "Add a top and bottom, or a dress, to unlock a full daily outfit." };
+  const names = selected.map((item) => item.name).join(" + ");
+  const weather = context.temperatureC < 18 && !outerwear ? " Consider adding an outer layer for the temperature." : "";
+  return { status: "ready", items: selected, missing: [], reason: `${names} aligns with your ${context.occasion} setting and saved style preferences.${weather}` };
+}
+
 const EASE: Record<GarmentCategory, Record<FitPreference, number>> = {
   top: { slim: 4, regular: 10, relaxed: 18 },
   bottom: { slim: 2, regular: 6, relaxed: 12 }
@@ -196,6 +239,13 @@ function scoreSize(size: GarmentSpec["sizes"][number], body: NormalizedMeasureme
   const tightAreas = areas.filter((area) => area.status === "tight").length;
   const score = areas.length === 0 ? 0 : Math.max(0, areas.reduce((sum, area) => sum + Math.max(0, 1 - Math.abs(Math.max(area.differenceCm, 0) - ease) / Math.max(ease, 1)), 0) / areas.length - tightAreas * 0.5);
   return { ...size, areas, tightAreas, score };
+}
+
+function scoreWardrobeItem(item: WardrobeItem, preferences: StylePreferences, context: OutfitContext) {
+  const styleScore = item.styleTags.filter((tag) => preferences.goals.includes(tag)).length * 3;
+  const occasionTarget: Record<(typeof occasions)[number], number> = { daily: 2, work: 4, date: 3, travel: 2, event: 5 };
+  const temperatureTarget = context.temperatureC < 10 ? 5 : context.temperatureC < 18 ? 4 : context.temperatureC < 25 ? 3 : 1;
+  return styleScore - Math.abs(item.formality - occasionTarget[context.occasion]) - Math.abs(item.warmth - temperatureTarget) * 0.6;
 }
 
 function ratio(a?: number, b?: number) { return round((a ?? 0) / Math.max(b ?? 1, 1)); }

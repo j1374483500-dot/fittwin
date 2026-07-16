@@ -1,4 +1,4 @@
-import { assessGarmentFit, createProfile, renderTwin, twinProfileSchema, type FitAssessment, type GarmentSpec, type TwinProfile, type TwinProfileDraft, type TwinViewModel } from "@fittwin/core";
+import { assessGarmentFit, calculateInsights, createProfile, renderTwin, twinProfileSchema, type FitAssessment, type GarmentSpec, type TwinProfile, type TwinProfileDraft, type TwinViewModel } from "@fittwin/core";
 import { z } from "zod";
 
 export interface ProfileStore {
@@ -28,6 +28,26 @@ export const styleGuideSchema = z.object({
   careNote: z.string().min(1).max(300)
 });
 export type StyleGuide = z.infer<typeof styleGuideSchema>;
+
+/** Offline fallback that provides useful guidance without a provider key or network request. */
+export class DeterministicStyleAdvisor implements StyleAdvisor {
+  async generate(input: Pick<TwinProfile, "measurements" | "preferences" | "feedback">): Promise<StyleGuide> {
+    const insights = calculateInsights(input.measurements);
+    const primaryGoal = input.preferences.goals[0];
+    const occasion = input.preferences.occasions[0];
+    const liked = input.feedback.filter((item) => item.sentiment === "like").map((item) => item.trait).slice(-2);
+    return styleGuideSchema.parse({
+      summary: `A ${primaryGoal} direction built around your saved proportions and ${occasion} routine.`,
+      silhouettes: [
+        { recommendation: insights.legToHeight >= 0.45 ? "Try a cropped or tucked top with a clear waistline." : "Try a higher-rise bottom with a continuous vertical line.", reason: insights.notes[2] },
+        { recommendation: insights.shoulderToHip >= 0.94 ? "Use straight layers when you want a balanced outline." : "Use a structured shoulder or lighter upper layer when you want visual balance.", reason: insights.notes[0] }
+      ],
+      layers: ["Start with one clean base layer.", "Add one layer only when it supports your comfort or the weather."],
+      outfitRecipes: [{ occasion, formula: `${primaryGoal} top + comfortable bottom + one intentional shoe choice`, reason: liked.length ? `Your saved feedback favors ${liked.join(" and ")}.` : "This is an offline starting point you can refine with feedback." }],
+      careNote: "This is a styling option, not a rule or a fit guarantee."
+    });
+  }
+}
 
 export interface FitTwin {
   createProfile(profile: TwinProfileDraft): Promise<TwinProfile>;

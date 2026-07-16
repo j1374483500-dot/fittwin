@@ -7,9 +7,9 @@
   "types": "./dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
   "files": ["dist"],
-  "scripts": { "build": "tsup src/index.tsx --format esm --dts", "test": "vitest run --passWithNoTests", "typecheck": "tsc --noEmit" },
+  "scripts": { "build": "tsup src/index.tsx --format esm --dts", "test": "vitest run", "typecheck": "tsc --noEmit" },
   "peerDependencies": { "react": "^19.0.0" },
   "dependencies": { "@fittwin/core": "workspace:*" },
-  "devDependencies": { "react": "^19.1.0" },
+  "devDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0" },
   "license": "MIT"
 }
