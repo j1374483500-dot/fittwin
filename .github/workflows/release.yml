@@ -1,0 +1,41 @@
+name: Release alpha
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact prerelease version, for example 0.1.0-alpha.1
+        required: true
+        default: 0.1.0-alpha.1
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck && pnpm test && pnpm build
+      - run: pnpm --filter @fittwin/core publish --access public --no-git-checks
+        env: { NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} }
+      - run: pnpm --filter @fittwin/sdk publish --access public --no-git-checks
+        env: { NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} }
+      - run: pnpm --filter @fittwin/react publish --access public --no-git-checks
+        env: { NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} }
+      - run: pnpm --filter @fittwin/local-companion publish --access public --no-git-checks
+        env: { NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} }
+      - run: git tag v${{ inputs.version }} && git push origin v${{ inputs.version }}
+      - run: gh release create v${{ inputs.version }} --generate-notes
+        env: { GH_TOKEN: ${{ github.token }} }

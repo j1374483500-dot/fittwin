@@ -1,0 +1,13 @@
+{
+  "name": "@fittwin/local-companion",
+  "version": "0.1.0-alpha.1",
+  "description": "A loopback-only, user-operated AI bridge for FitTwin.",
+  "type": "module",
+  "main": "./dist/server.js",
+  "bin": { "fittwin-companion": "./dist/server.js" },
+  "files": ["dist"],
+  "scripts": { "build": "tsup src/server.ts --format esm --dts", "dev": "tsx src/server.ts", "test": "vitest run --passWithNoTests", "typecheck": "tsc --noEmit" },
+  "dependencies": { "@fittwin/core": "workspace:*", "@fittwin/sdk": "workspace:*" },
+  "devDependencies": { "tsx": "^4.19.3" },
+  "license": "MIT"
+}

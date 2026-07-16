@@ -1,0 +1,23 @@
+[
+  {
+    "id": "everyday-oxford",
+    "name": "Everyday Oxford Shirt",
+    "category": "top",
+    "fitIntent": "regular",
+    "sizes": [
+      { "label": "S", "measurements": { "shoulder": 42, "chest": 100 } },
+      { "label": "M", "measurements": { "shoulder": 44, "chest": 108 } },
+      { "label": "L", "measurements": { "shoulder": 46, "chest": 116 } }
+    ]
+  },
+  {
+    "id": "straight-trouser",
+    "name": "Straight Trouser",
+    "category": "bottom",
+    "fitIntent": "regular",
+    "sizes": [
+      { "label": "30", "measurements": { "waist": 80, "hip": 100, "inseam": 78 } },
+      { "label": "32", "measurements": { "waist": 84, "hip": 104, "inseam": 80 } }
+    ]
+  }
+]
