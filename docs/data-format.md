@@ -5,3 +5,5 @@
 FitTwin does not define, infer, or require gender, age, face data, health data, a photograph, or a real name. Consumers should preserve unknown fields externally rather than adding them to the public profile contract.
 
 `GarmentSpec` accepts `top` and `bottom` charts. Tops should provide shoulder and chest; bottoms should provide waist, hip, and inseam. Each assessment returns a result status, confidence, recommendation, and per-area explanation. See [`examples/garment-specs.json`](../examples/garment-specs.json).
+
+The personal PWA stores manually entered `GarmentSpec` objects in a separate local IndexedDB store. It neither fetches product pages nor sends a size table to a service. Garment tables can be deleted with local data, but the current profile export format deliberately exports only the versioned `TwinProfile`.

@@ -10,6 +10,7 @@ FitTwin is an open-source, local-first body profile and style-guide toolkit. Ind
 - A neutral, data-derived 2D silhouette—no photograph, scan, gender inference, telemetry, or account.
 - A consent-gated AI guide via the user's own loopback-only companion and OpenAI-compatible provider.
 - Transparent garment sizing for standard top and bottom size charts.
+- A personal, browser-local size-check form: enter a brand's measurements, save the chart on your device, and see the recommended size with per-area differences.
 - TypeScript SDK, React silhouette component, personal PWA, and a local AI companion.
 
 ## Quick start
@@ -24,6 +25,10 @@ pnpm dev:web
 Open the displayed local URL. Profiles and feedback are retained only in that browser's IndexedDB. Use **Export profile** before changing browsers or devices.
 
 The public demo is deployed to GitHub Pages after every successful `main` build. It works without any model key: create a profile, generate an offline base guide, and build a local wardrobe first. The companion is only required for a provider-generated guide.
+
+### Check a garment size table
+
+In the personal app, open **Personal size check**, enter the garment name and its top or bottom size-table values, then choose **Save and check fit**. FitTwin saves that table only in this browser and explains the closest size with shoulder/chest or waist/hip/inseam differences. It does not scrape product pages and it does not guarantee a garment will fit; use it as a transparent starting point alongside the brand's own guidance.
 
 ### Enable AI guidance locally
 
