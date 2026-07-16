@@ -20,14 +20,14 @@ describe("FitTwin MCP", () => {
     expect(summary.proportions).toHaveProperty("shoulderToHip");
   });
 
-  it("loads an encrypted vault and serves three tools over stdio", async () => {
+  it("loads an encrypted vault and serves agent-native tools over stdio", async () => {
     const vaultPath = await writeVault(vault, password);
     await expect(loadAgentVault(vaultPath, "wrong-password")).rejects.toThrow("incorrect");
     const client = new Client({ name: "fittwin-test-client", version: "1.0" });
     const transport = new StdioClientTransport({ command: process.execPath, args: [resolve(process.cwd(), "dist/server.js")], cwd: process.cwd(), env: { PATH: process.env.PATH ?? "", FITTWIN_VAULT_PATH: vaultPath, FITTWIN_VAULT_PASSWORD: password }, stderr: "pipe" });
     await client.connect(transport);
     const tools = await client.listTools();
-    expect(tools.tools.map((tool) => tool.name)).toEqual(expect.arrayContaining(["fittwin_get_profile_summary", "fittwin_recommend_outfit", "fittwin_assess_garment_fit"]));
+    expect(tools.tools.map((tool) => tool.name)).toEqual(expect.arrayContaining(["fittwin_get_profile_summary", "fittwin_recommend_outfit", "fittwin_assess_garment_fit", "fittwin_generate_style_brief"]));
     expect(tools.tools.map((tool) => tool.name)).not.toContain("fittwin_record_style_feedback");
     const summary = await client.callTool({ name: "fittwin_get_profile_summary", arguments: {} });
     expect(JSON.stringify(summary)).not.toContain("private-profile-id");
@@ -35,6 +35,8 @@ describe("FitTwin MCP", () => {
     expect(JSON.stringify(outfit)).toContain("White shirt");
     const fit = await client.callTool({ name: "fittwin_assess_garment_fit", arguments: { garment: { id: "tee", name: "Tee", category: "top", fitIntent: "regular", sizes: [{ label: "M", measurements: { shoulder: 44, chest: 106 } }] } } });
     expect(JSON.stringify(fit)).toContain("recommendedSize");
+    const brief = await client.callTool({ name: "fittwin_generate_style_brief", arguments: {} });
+    expect(JSON.stringify(brief)).toContain("outfitRecipes");
     await client.close();
 
     const writableClient = new Client({ name: "fittwin-write-test-client", version: "1.0" });

@@ -42,6 +42,7 @@ Do not put a Vault password in a shared configuration repository, screen recordi
 | `fittwin_get_profile_summary` | goals, occasions, fit preference, derived proportion notes | profile ID, raw height/shoulder/chest/waist/hip/inseam values |
 | `fittwin_recommend_outfit` | a deterministic selection from the exported wardrobe | product links, web results, purchase actions |
 | `fittwin_assess_garment_fit` | recommendation, confidence, and per-area garment differences | raw profile values or a fit guarantee |
+| `fittwin_generate_style_brief` | an offline structured guide shaped by proportions, goals, occasions, and recorded feedback | a provider request, raw measurements, or medical/body judgment |
 
 By default, all tools are read-only in this alpha. FitTwin does not let an AI client modify the profile, export data, invoke an external model, access photos, or run a virtual try-on.
 

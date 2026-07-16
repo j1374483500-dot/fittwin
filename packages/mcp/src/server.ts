@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { agentVaultSchema, assessGarmentFit, calculateInsights, garmentSpecSchema, recommendOutfit, type AgentVault } from "@fittwin/core";
+import { DeterministicStyleAdvisor } from "@fittwin/sdk";
 import { z } from "zod";
 
 const encryptedVaultSchema = z.object({ version: z.literal(1), salt: z.string().min(1), iv: z.string().min(1), ciphertext: z.string().min(17) });
@@ -39,6 +40,11 @@ export function createFitTwinMcp(vault: AgentVault, options: McpOptions = {}) {
     description: "Compare a caller-supplied top or bottom size chart to the user's local profile. Returns a recommendation, confidence, and local measurement differences; it never guarantees fit.",
     inputSchema: { garment: garmentSpecSchema }
   }, async ({ garment }) => result(assessGarmentFit(activeVault.profile, garment)));
+  server.registerTool("fittwin_generate_style_brief", {
+    title: "FitTwin personal style brief",
+    description: "Generate an offline, structured personal style brief from the user's exported proportions, preferences, and recorded feedback. No model provider or network request is used. The result is an option, not a body judgment or fit guarantee.",
+    inputSchema: {}
+  }, async () => result(await new DeterministicStyleAdvisor().generate(activeVault.profile)));
   const saveVault = options.saveVault;
   if (options.allowWrites && saveVault) server.registerTool("fittwin_record_style_feedback", {
     title: "FitTwin record style feedback",
