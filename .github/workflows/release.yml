@@ -7,6 +7,11 @@ on:
         description: Exact prerelease version, for example 0.1.0-alpha.1
         required: true
         default: 0.1.0-alpha.1
+      publish_npm:
+        description: Publish packages after the @fittwin npm scope and NPM_TOKEN are ready
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -28,19 +33,29 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck && pnpm test && pnpm build
-      - run: pnpm --filter @fittwin/core publish --access public --no-git-checks
+      - if: inputs.publish_npm
+        run: pnpm --filter @fittwin/core publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: pnpm --filter @fittwin/sdk publish --access public --no-git-checks
+      - if: inputs.publish_npm
+        run: pnpm --filter @fittwin/sdk publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: pnpm --filter @fittwin/react publish --access public --no-git-checks
+      - if: inputs.publish_npm
+        run: pnpm --filter @fittwin/react publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: pnpm --filter @fittwin/local-companion publish --access public --no-git-checks
+      - if: inputs.publish_npm
+        run: pnpm --filter @fittwin/local-companion publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: git tag v${{ inputs.version }} && git push origin v${{ inputs.version }}
-      - run: gh release create v${{ inputs.version }} --generate-notes
+      - name: Create or update GitHub pre-release
+        run: |
+          tag="v${{ inputs.version }}"
+          if gh release view "$tag"; then
+            gh release edit "$tag" --title "FitTwin $tag" --prerelease
+          else
+            gh release create "$tag" --target "$GITHUB_SHA" --title "FitTwin $tag" --prerelease --generate-notes
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
