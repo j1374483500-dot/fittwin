@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Exact prerelease version, for example 0.1.0-alpha.1
+        description: Exact prerelease version, for example 0.1.0-alpha.2
         required: true
-        default: 0.1.0-alpha.1
+        default: 0.1.0-alpha.2
       publish_npm:
         description: Publish packages after the @fittwin npm scope and NPM_TOKEN are ready
         required: true

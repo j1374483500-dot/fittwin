@@ -24,7 +24,7 @@ export interface McpOptions { allowWrites?: boolean; saveVault?: (vault: AgentVa
 
 export function createFitTwinMcp(vault: AgentVault, options: McpOptions = {}) {
   let activeVault = vault;
-  const server = new McpServer({ name: "fittwin", version: "0.1.0-alpha.1" });
+  const server = new McpServer({ name: "fittwin", version: "0.1.0-alpha.2" });
   server.registerTool("fittwin_get_profile_summary", {
     title: "FitTwin profile summary",
     description: "Return the user's consented style preferences and proportional summary. Never returns profile identifiers or raw measurements.",

@@ -1,7 +1,7 @@
 {
   "name": "@fittwin/mcp",
-  "version": "0.1.0-alpha.1",
-  "description": "A read-only local MCP server for FitTwin Agent Vaults.",
+  "version": "0.1.0-alpha.2",
+  "description": "A local MCP server for FitTwin Agent Vaults with read-only defaults and optional consented feedback writes.",
   "type": "module",
   "main": "./dist/server.js",
   "bin": { "fittwin-mcp": "./dist/server.js" },

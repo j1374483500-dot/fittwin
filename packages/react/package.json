@@ -1,6 +1,6 @@
 {
   "name": "@fittwin/react",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Accessible React components for FitTwin.",
   "type": "module",
   "main": "./dist/index.js",

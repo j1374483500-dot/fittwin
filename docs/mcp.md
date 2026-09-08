@@ -1,6 +1,6 @@
 # FitTwin MCP: local AI integration
 
-`@fittwin/mcp` makes FitTwin an AI-callable capability layer instead of a website-only tool. It uses MCP stdio: the AI client starts a local child process and exchanges JSON-RPC over standard input/output. The server does not open a network port, call a model provider, or write to the vault.
+`@fittwin/mcp` makes FitTwin an AI-callable capability layer instead of a website-only tool. It uses MCP stdio: the AI client starts a local child process and exchanges JSON-RPC over standard input/output. The server does not open a network port, call a model provider, or write to the vault by default. Feedback writes require the explicit opt-in described below.
 
 ## Create a local Agent Vault
 

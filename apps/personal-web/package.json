@@ -1,7 +1,7 @@
 {
   "name": "@fittwin/personal-web",
   "private": true,
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "type": "module",
   "scripts": { "dev": "vite", "prebuild": "pnpm --filter @fittwin/core build && pnpm --filter @fittwin/sdk build && pnpm --filter @fittwin/react build", "build": "tsc --noEmit && vite build", "test": "vitest run", "typecheck": "tsc --noEmit" },
   "dependencies": {

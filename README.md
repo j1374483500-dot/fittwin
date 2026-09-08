@@ -11,7 +11,7 @@ FitTwin is an open-source, local-first body profile and style-guide toolkit. Ind
 - A consent-gated AI guide via the user's own loopback-only companion and OpenAI-compatible provider.
 - Transparent garment sizing for standard top and bottom size charts.
 - A personal, browser-local size-check form: enter a brand's measurements, save the chart on your device, and see the recommended size with per-area differences.
-- A read-only local MCP server, so compatible AI clients can call FitTwin capabilities without turning the profile into a cloud API.
+- A local MCP server with four read-only tools by default and an optional consented feedback-write tool, so compatible AI clients can call FitTwin capabilities without turning the profile into a cloud API.
 - TypeScript SDK, React silhouette component, personal PWA, and a local AI companion.
 
 ## Quick start
@@ -25,7 +25,7 @@ pnpm dev:web
 
 Open the displayed local URL. Profiles and feedback are retained only in that browser's IndexedDB. Use **Export profile** before changing browsers or devices.
 
-The public demo is deployed to GitHub Pages after every successful `main` build. It works without any model key: create a profile, generate an offline base guide, and build a local wardrobe first. The companion is only required for a provider-generated guide.
+The [live demo](https://j1374483500-dot.github.io/fittwin/) is deployed to GitHub Pages after every successful `main` build. It works without any model key: create a profile, generate an offline base guide, and build a local wardrobe first. The companion is only required for a provider-generated guide.
 
 ### Check a garment size table
 
@@ -33,7 +33,7 @@ In the personal app, open **Personal size check**, enter the garment name and it
 
 ### Connect an AI client locally
 
-FitTwin is agent-native: the web app is a private profile editor, while `@fittwin/mcp` is a local capability provider for compatible AI clients. Export an encrypted **AI vault** from the PWA, then configure your client to launch `fittwin-mcp` over stdio. It exposes three read-only tools: a minimized profile summary, outfit recommendation from the exported wardrobe, and garment-fit assessment. The server has no network endpoint and does not call a model provider.
+FitTwin is agent-native: the web app is a private profile editor, while `@fittwin/mcp` is a local capability provider for compatible AI clients. Export an encrypted **AI vault** from the PWA, then configure your client to launch `fittwin-mcp` over stdio. It exposes four read-only tools by default: a minimized profile summary, outfit recommendation from the exported wardrobe, garment-fit assessment, and an offline style brief. Explicitly setting `FITTWIN_ALLOW_WRITES=true` enables one additional tool to record style feedback in the encrypted local vault; importing that vault back into the PWA is a separate user action. The server has no network endpoint and does not call a model provider.
 
 See [the MCP setup guide](docs/mcp.md) before connecting a client. A connected client can see the result of any tool it invokes; only connect a client you trust.
 
@@ -81,7 +81,7 @@ pnpm test
 pnpm build
 ```
 
-The first public release is planned as `v0.1.0-alpha.1`. Package publication requires the maintainer to reserve the `@fittwin` npm scope first.
+The first GitHub prerelease, [v0.1.0-alpha.1](https://github.com/j1374483500-dot/fittwin/releases/tag/v0.1.0-alpha.1), is published. This tree prepares `v0.1.0-alpha.2`; see the [changelog](CHANGELOG.md) for changes and remaining limitations. GitHub releases and npm publication are separate: use the source checkout above; npm publication remains opt-in and requires the `@fittwin` scope and release credentials.
 
 ## License
 
