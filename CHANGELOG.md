@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.1.0-alpha.2 — prepared 2026-09-08
+## 0.1.0-alpha.2 — 2026-09-08
 
-This source revision prepares the next GitHub prerelease. It does not imply npm publication.
+This source release updates the personal app, local MCP tools, and dependencies. It does not imply npm publication.
 
 ### Added since alpha.1
 

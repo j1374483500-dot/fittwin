@@ -87,7 +87,7 @@ pnpm test
 pnpm build
 ```
 
-The first GitHub prerelease, [v0.1.0-alpha.1](https://github.com/j1374483500-dot/fittwin/releases/tag/v0.1.0-alpha.1), is published. This tree prepares `v0.1.0-alpha.2`; see the [changelog](CHANGELOG.md) for changes and remaining limitations. GitHub releases and npm publication are separate: use the source checkout above; npm publication remains opt-in and requires the `@fittwin` scope and release credentials.
+The current source version is `0.1.0-alpha.2`. See [GitHub prereleases](https://github.com/j1374483500-dot/fittwin/releases) and the [changelog](CHANGELOG.md) for release history, changes, and remaining limitations. GitHub releases and npm publication are separate: use the source checkout above; npm publication remains opt-in and requires the `@fittwin` scope and release credentials.
 
 ## License
 
