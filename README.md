@@ -4,6 +4,12 @@ FitTwin is an open-source, local-first body profile and style-guide toolkit. Ind
 
 > Alpha software: FitTwin offers styling options, not medical advice, an identity classification, a body scan, or a guarantee of fit.
 
+[Open the live demo](https://j1374483500-dot.github.io/fittwin/) · [Changelog](CHANGELOG.md)
+
+![FitTwin personal web app with built-in example measurements](docs/images/personal-web.png)
+
+*Actual demo interface; the displayed measurements are built-in example values.*
+
 ## What is included
 
 - Manual body measurements with centimetre and inch input, stored locally in the browser.
